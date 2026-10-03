@@ -177,7 +177,7 @@ export const projects = [
   {
     id: 'voice',
     repo: REPO('voice-agent-service'),
-    tags: ['LiveKit', 'WebRTC', 'Whisper', 'Piper', 'Gemini TTS', 'Python'],
+    tags: ['LiveKit', 'WebRTC', 'Gemini TTS', 'Python'],
     ru: {
       title: 'Голосовой агент «Мила»',
       line: 'Принимает звонки и бронирует столики в ресторане голосом — в реальном времени.',
