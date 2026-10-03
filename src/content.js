@@ -185,7 +185,6 @@ export const projects = [
       solution: 'Голосовой агент на LiveKit: слушает, отвечает и вызывает типизированные инструменты — проверяет свободные столы, предлагает ближайшее время, бронирует и отменяет.',
       how: [
         'Настоящий WebRTC-пайплайн: потоковое распознавание → LLM → синтез речи',
-        'Умеет работать офлайн: распознавание (faster-whisper) и синтез (piper) можно запустить локально, без облачных ключей. Живое демо на сайте использует облачные модели (gpt-4o-mini, Gemini TTS)',
         'Детерминированные инструменты с валидацией — ослышка не займёт чужой стол',
         'Два языка: русский и английский переключаются одной настройкой',
         'Если бэкенд недоступен, агент объясняет ситуацию, а не молчит',
@@ -199,7 +198,6 @@ export const projects = [
       solution: 'A LiveKit voice agent that listens, replies and calls typed tools — it checks free tables, offers the nearest slots, books and cancels.',
       how: [
         'A real WebRTC pipeline: streaming speech-to-text → LLM → text-to-speech',
-        'Can run fully offline: recognition (faster-whisper) and synthesis (piper) work locally, no cloud keys. The live demo on this site uses cloud models (gpt-4o-mini, Gemini TTS)',
         "Deterministic, validated tools — a mishearing can't take someone else's table",
         'Bilingual: Russian and English switch with a single setting',
         'If the backend is down, the agent explains what happened instead of going silent',
