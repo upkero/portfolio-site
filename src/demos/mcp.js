@@ -62,7 +62,8 @@ export function mount(root, { c, common, reduced, signal, setStatus }) {
           row('final', c.final, at(), `<p class="ev__answer">${esc(data.content)}</p>`);
         } else if (event === 'error') {
           live('final');
-          row('error', c.error, at(), `<p>${esc(data.detail || data.error_code)}</p>`);
+          const text = [data?.detail, data?.error_code].find((v) => typeof v === 'string' && v.trim());
+          row('error', c.error, at(), `<p>${esc(text || c.errorUnknown)}</p>`);
         } else if (event === 'failure') {
           live('final');
           row('error', c.error, null, `<p>${esc(failText(common, data.failure, data.status))}</p>`);
