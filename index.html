@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>upkero — AI-инженер: голосовые и чат-агенты, RAG, автоматизация</title>
+  <meta name="description" content="Проектирую и запускаю AI-системы для бизнеса: голосовые и чат-агенты, базы знаний, AI-продажи и интеграции.">
+  <meta name="theme-color" content="#070807">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="upkero — AI, который работает">
+  <meta property="og:description" content="Голосовые и чат-агенты, базы знаний, AI-продажи и автоматизация для бизнеса.">
+  <meta property="og:image" content="/og.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500&family=Geist+Mono:wght@400&display=swap" rel="stylesheet">
+  <script>try{var l=localStorage.getItem('lang');document.documentElement.lang=l||(/^ru|^uk|^be|^kk/i.test(navigator.language)?'ru':'en')}catch(e){}</script>
+</head>
+<body>
+  <canvas class="gl" id="gl" aria-hidden="true"></canvas>
+  <div class="cursor" aria-hidden="true"><span class="cursor__label"></span></div>
+
+  <a class="skip" href="#main" data-i18n="skip"></a>
+
+  <header class="nav">
+    <a class="nav__logo" href="#top" aria-label="upkero">upkero <span data-i18n="nav.role"></span></a>
+    <div class="nav__lang lang" role="group" aria-label="Language">
+      <button type="button" data-lang="ru" lang="ru">RU</button>
+      <button type="button" data-lang="en" lang="en">EN</button>
+    </div>
+    <nav class="nav__menu" aria-label="Main">
+      <a href="#services" data-i18n="nav.services"></a>
+      <a href="#work" data-i18n="nav.work"></a>
+      <a href="#approach" data-i18n="nav.approach"></a>
+      <a href="#contact" data-i18n="nav.contact"></a>
+    </nav>
+    <button class="nav__burger" type="button" aria-expanded="false" aria-controls="mmenu">
+      <span data-i18n="nav.menu"></span><i aria-hidden="true"></i>
+    </button>
+  </header>
+
+  <div class="mmenu" id="mmenu" hidden>
+    <nav aria-label="Mobile">
+      <a href="#services" data-i18n="nav.services"></a>
+      <a href="#work" data-i18n="nav.work"></a>
+      <a href="#approach" data-i18n="nav.approach"></a>
+      <a href="#contact" data-i18n="nav.contact"></a>
+    </nav>
+    <div class="mmenu__foot">
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="ru" lang="ru">RU</button>
+        <button type="button" data-lang="en" lang="en">EN</button>
+      </div>
+      <a data-contact="email"></a>
+    </div>
+  </div>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero__inner">
+        <h1 class="hero__title" data-hero-title></h1>
+        <p class="hero__sub" data-i18n="hero.sub"></p>
+        <div class="hero__cta">
+          <a class="pill pill--solid" href="#contact" data-i18n="hero.cta1"></a>
+          <a class="pill" href="#work" data-i18n="hero.cta2"></a>
+        </div>
+      </div>
+      <a class="badge" href="#manifesto" data-i18n-aria="hero.scrollLabel">
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          <defs><path id="badge-circle" d="M50,50 m-38,0 a38,38 0 1,1 76,0 a38,38 0 1,1 -76,0"/></defs>
+          <text><textPath href="#badge-circle" data-i18n="hero.scroll"></textPath></text>
+          <path class="badge__arrow" d="M50 38v22m-7-7 7 7 7-7"/>
+        </svg>
+      </a>
+    </section>
+
+    <section class="manifesto" id="manifesto">
+      <p class="manifesto__text" data-i18n="manifesto" data-words></p>
+    </section>
+
+    <section class="services" id="services">
+      <div class="wrap">
+        <h2 class="h2" data-i18n="services.title"></h2>
+        <ul class="svc" data-services></ul>
+        <p class="svc__more">
+          <span data-i18n="services.more"></span>
+          <a class="link-arrow" href="#contact"><span data-i18n="services.moreCta"></span></a>
+        </p>
+      </div>
+    </section>
+
+    <section class="work" id="work">
+      <div class="wrap">
+        <div class="work__head">
+          <h2 class="h2" data-i18n="work.title"></h2>
+          <p class="lead" data-i18n="work.lead"></p>
+        </div>
+        <div class="work__grid" data-work></div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee__track" data-marquee></div></div>
+
+    <section class="approach" id="approach">
+      <div class="wrap approach__grid">
+        <div class="approach__head">
+          <h2 class="h2" data-i18n="approach.title"></h2>
+          <p class="lead" data-i18n="approach.lead"></p>
+        </div>
+        <ol class="steps" data-steps></ol>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="wrap contact__inner">
+        <h2 class="contact__title" data-i18n="contact.title" data-html></h2>
+        <p class="contact__lead" data-i18n="contact.lead"></p>
+        <div class="contact__mail">
+          <a class="contact__email" data-contact="email"></a>
+          <button class="pill pill--sm" type="button" data-copy data-i18n="contact.copy"></button>
+        </div>
+        <div class="contact__links">
+          <a class="pill" data-contact="telegram" target="_blank" rel="noopener">Telegram</a>
+          <a class="pill" data-contact="github" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <footer class="foot wrap">
+        <span>© <span data-year></span> upkero — <span data-i18n="footer.rights"></span></span>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="ru" lang="ru">RU</button>
+          <button type="button" data-lang="en" lang="en">EN</button>
+        </div>
+        <a href="#top" data-i18n="footer.top"></a>
+      </footer>
+    </section>
+  </main>
+
+  <dialog class="case" id="case" data-lenis-prevent aria-labelledby="case-title">
+    <div class="case__bar">
+      <span class="case__index" data-case-index></span>
+      <button class="pill pill--sm" type="button" data-case-close data-i18n="case.close"></button>
+    </div>
+    <article class="case__body">
+      <header class="case__head">
+        <h2 class="case__title" id="case-title" data-case="title"></h2>
+        <p class="case__line" data-case="line"></p>
+      </header>
+      <div class="case__demo" data-case-demo></div>
+      <div class="case__grid">
+        <aside class="case__meta">
+          <h3 data-i18n="case.stack"></h3>
+          <ul class="tags" data-case="tags"></ul>
+          <a class="pill" data-case="repo" target="_blank" rel="noopener"><span data-i18n="case.source"></span> ↗</a>
+        </aside>
+        <div class="case__text">
+          <h3 data-i18n="case.task"></h3>
+          <p data-case="task"></p>
+          <h3 data-i18n="case.solution"></h3>
+          <p data-case="solution"></p>
+          <h3 data-i18n="case.how"></h3>
+          <ul class="case__list" data-case="how"></ul>
+          <h3 data-i18n="case.business"></h3>
+          <p class="case__biz" data-case="business"></p>
+        </div>
+      </div>
+      <a class="case__next" href="#" data-case-next>
+        <span data-i18n="case.next"></span>
+        <strong data-case="next"></strong>
+      </a>
+    </article>
+  </dialog>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
