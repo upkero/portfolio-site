@@ -4,7 +4,7 @@ import { bindInput, composerHtml, esc, failText, html, pin, secs, trouble, turn,
 
 const STAGES = ['greeting', 'qualify', 'present', 'objection_handling', 'upsell', 'close'];
 
-export function mount(root, { c, common, signal, setStatus }) {
+export function mount(root, { lang, c, common, signal, setStatus }) {
   let conversationId = null;
   let stage = null;
   let busy = false;
@@ -78,7 +78,7 @@ export function mount(root, { c, common, signal, setStatus }) {
 
     const r = await call('sales', '/api/v1/turn', {
       method: 'POST',
-      body: conversationId ? { message, conversation_id: conversationId } : { message },
+      body: conversationId ? { message, conversation_id: conversationId, language: lang } : { message, language: lang },
       signal,
     }).catch(() => null);
     if (!r) return;
