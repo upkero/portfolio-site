@@ -7,10 +7,11 @@ const FLEET = [
   ['mcp', 'mcp-ops-agent'], ['voice', 'voice-agent-service'],
 ];
 const SERVICES = ['Deep Tissue Massage', 'Nutrition Coaching', 'Physiotherapy Assessment', 'Sports Recovery Session', 'Meeting Room Hire'];
-const iso = (d) => d.toISOString().slice(0, 10);
+// local YYYY-MM-DD; toISOString() is UTC and gives today's date between local midnight and the UTC offset
+const iso = (d) => d.toLocaleDateString('sv-SE');
 
 export function mount(root, { lang, c, common, signal, setStatus }) {
-  const tomorrow = iso(new Date(Date.now() + 864e5));
+  const tomorrow = iso(new Date(new Date().setDate(new Date().getDate() + 1)));
   const opt = (v, label, sel) => `<option value="${esc(v)}"${v === sel ? ' selected' : ''}>${esc(label)}</option>`;
   const field = (name, label, control) => `<label class="api__field"><span>${esc(label)}</span>${control}</label>`;
   const F = c.fields;
@@ -102,10 +103,12 @@ export function mount(root, { lang, c, common, signal, setStatus }) {
   async function conflict() {
     out.innerHTML = '';
     const log = (req, r, step, open = false) => out.insertAdjacentHTML('beforeend', exchange(req, r, step, open));
-    const find = { method: 'GET', path: '/api/v1/booking-slots', query: { resource_type: 'table', limit: 1 } };
+    const find = { method: 'GET', path: '/api/v1/booking-slots', query: { date: tomorrow, resource_type: 'table' } };
     const slots = await send(find);
     log(find, slots, `1 · ${c.steps[0]}`);
-    const slot = slots.data?.items?.[0];
+    // a random free slot: two visitors running the scenario at once rarely collide on the same one
+    const free = (slots.data?.items ?? []).filter((x) => x.is_available !== false);
+    const slot = free[Math.floor(Math.random() * free.length)];
     if (!slots.ok || !slot) {
       if (slots.ok) out.insertAdjacentHTML('beforeend', `<p class="demo__trouble">${esc(c.noSlot)}</p>`);
       return;
