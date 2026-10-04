@@ -11,7 +11,7 @@ const REPO = (name) => `${CONTACTS.github}/${name}`;
 
 export const dict = {
   ru: {
-    'meta.title': 'upkero — AI-инженер',
+    'meta.title': 'upkero - AI-инженер',
     'meta.description':
       'Проектирую и запускаю AI-системы для бизнеса: голосовые и чат-агенты, базы знаний, AI-продажи и интеграции.',
     skip: 'Перейти к содержанию',
@@ -63,7 +63,7 @@ export const dict = {
     cursorOpen: 'Демо',
   },
   en: {
-    'meta.title': 'upkero — AI engineer',
+    'meta.title': 'upkero - AI engineer',
     'meta.description':
       'I design and ship AI systems for businesses: voice and chat agents, knowledge bases, AI sales and integrations.',
     skip: 'Skip to content',
