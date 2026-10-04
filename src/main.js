@@ -70,6 +70,7 @@ $('[data-marquee]').innerHTML = [...stack, ...stack].map((s) => `<span>${s}</spa
 
 $$('[data-contact]').forEach((a) => {
   const kind = a.dataset.contact;
+  if (!CONTACTS[kind]) return a.remove(); // no address yet: no dead link
   a.href = kind === 'email' ? `mailto:${CONTACTS.email}` : CONTACTS[kind];
   if (kind === 'email') a.textContent = CONTACTS.email;
 });
