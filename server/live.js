@@ -10,7 +10,7 @@ import { Readable } from 'node:stream';
 
 const SERVICES = {
   core: { url: 'OPS_CORE_URL', fallback: 'http://127.0.0.1:8000', key: 'OPS_CORE_API_KEY' },
-  rag: { url: 'RAG_CHAT_URL', fallback: 'http://127.0.0.1:8001', key: 'OPS_CORE_API_KEY' },
+  rag: { url: 'RAG_CHAT_URL', fallback: 'http://127.0.0.1:8001', key: 'RAG_CHAT_API_KEY' },
   sales: { url: 'SALES_AGENT_URL', fallback: 'http://127.0.0.1:8002', key: 'SALES_AGENT_API_KEY' },
   mcp: { url: 'MCP_AGENT_URL', fallback: 'http://127.0.0.1:8003', key: 'MCP_AGENT_API_KEY' },
   voice: { url: 'VOICE_AGENT_URL', fallback: 'http://127.0.0.1:8080' },
