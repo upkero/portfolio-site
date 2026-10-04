@@ -48,5 +48,5 @@ export const server = http.createServer(async (req, res) => {
 });
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  server.listen(PORT, () => console.log(`upkero-site on http://localhost:${PORT}`));
+  server.listen(PORT, () => console.log(`portfolio-site on http://localhost:${PORT}`));
 }
