@@ -58,6 +58,7 @@ export const COPY = {
       },
       placeholder: 'Напишите Алексу…',
       thinking: 'Алекс печатает…',
+      agent: 'Алекс',
       nextLabel: 'Вариант ответа',
       // the customer's side of a happy path; a line already said is never offered again
       next: {
@@ -217,6 +218,7 @@ export const COPY = {
       },
       placeholder: 'Write to Alex…',
       thinking: 'Alex is typing…',
+      agent: 'Alex',
       nextLabel: 'Reply with',
       next: {
         start: ['Hi! My shoulder muscles keep tightening up', 'Hi! I want to recover after training'],
