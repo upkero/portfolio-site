@@ -37,7 +37,10 @@ function geometry(p) {
   const left = page(-142, [{ y: -78, n: 5, head: true }, { y: -14, n: 4 }, { y: 40, n: 6, head: true }]);
   // the page with the answer, and the pages turned before it is found
   const right = page(14, [{ y: -78, n: 4, head: true }, { y: -26, n: 3 }, { y: 24, n: 3, head: true }, { y: 70, n: 3 }]);
-  const turned = Array.from({ length: FLIPS }, () => page(14, [{ y: -80, n: 6, head: true }, { y: -6, n: 5, head: true }, { y: 62, n: 4 }]));
+  const turned = Array.from({ length: FLIPS }, () => ({
+    front: page(14, [{ y: -80, n: 6, head: true }, { y: -6, n: 5, head: true }, { y: 62, n: 4 }]),
+    back: page(-142, [{ y: -78, n: 7, head: true }, { y: 14, n: 6, head: true }]),
+  }));
   const line = [[14, 47], [122, 47]];
   const answer = [p.script(-26, 24, 24, 1.1), p.script(-26, 8, 31, 1.1)].map((s) => s.flat());
   return { left, right, turned, line, answer };
@@ -45,16 +48,21 @@ function geometry(p) {
 
 const G = geometry(pen(8));
 // fingertip stops, in binder coords: rest, the page corner, near the spine, the answer line, the tab
-const R = [170, 182], C = [144, 98], S = [46, 92], A0 = G.line[0], A1 = G.line[1], T = [152, 36];
+const R = [170, 182], C = [146, 98], S = [16, 98], A0 = G.line[0], A1 = G.line[1], T = [152, 36];
 const at = (pct, [x, y], ease = 'cubic-bezier(.5,0,.3,1)') => `${pct} { transform: translate(${x}px, ${y}px); animation-timing-function: ${ease}; }`;
-const flip = (i) => {
+// a page turn in two halves: the front narrows into the spine, then its back opens out over the left page
+const turn = (i) => {
   const a = 12 + i * 10;
-  return `@keyframes rag-flip${i} {
+  return `@keyframes rag-front${i} {
       0% { transform: none; opacity: 0; } 4% { opacity: 1; }
-      ${a}% { transform: none; animation-timing-function: cubic-bezier(.45,0,.55,1); }
-      ${a + 3}% { transform: scaleX(0.03) skewY(-5deg); animation-timing-function: cubic-bezier(.45,0,.55,1); }
-      ${a + 6}%, 92% { transform: scaleX(-1); opacity: 1; }
-      99% { transform: scaleX(-1); opacity: 0; } 100% { transform: none; opacity: 0; }
+      ${a}% { transform: none; animation-timing-function: cubic-bezier(.5,0,.9,.6); }
+      ${a + 3}%, 99% { transform: scaleX(0); opacity: 1; }
+      100% { transform: none; opacity: 0; }
+    }
+    @keyframes rag-back${i} {
+      0%, ${a + 3}% { transform: scaleX(0); animation-timing-function: cubic-bezier(.1,.4,.5,1); }
+      ${a + 6}%, 92% { transform: none; opacity: 1; }
+      99% { transform: none; opacity: 0; } 100% { transform: scaleX(0); opacity: 0; }
     }`;
 };
 const drawn = (name, a, b) => `@keyframes rag-${name} { 0%, ${a}% { stroke-dashoffset: 1; } ${b}%, 92% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }`;
@@ -65,7 +73,8 @@ export default {
   // 10 s: the question lands, three pages are turned, the answer is underlined and tabbed, then written onto the note
   css: `
     .scene--rag .r-note { transform-box: fill-box; transform-origin: 50% 50%; animation: rag-note 10s cubic-bezier(.3,.7,.3,1) infinite; }
-    ${Array.from({ length: FLIPS }, (_, i) => `.scene--rag .r-flip${i} { transform-box: view-box; transform-origin: 0 0; animation: rag-flip${i} 10s infinite; }`).join('\n    ')}
+    ${Array.from({ length: FLIPS }, (_, i) => `.scene--rag .r-front${i} { transform-box: view-box; transform-origin: 0 0; animation: rag-front${i} 10s infinite; }
+    .scene--rag .r-back${i} { transform-box: view-box; transform-origin: 0 0; transform: scaleX(0); animation: rag-back${i} 10s infinite; }`).join('\n    ')}
     .scene--rag .r-hand { transform: translate(${R[0]}px, ${R[1]}px); animation: rag-hand 10s infinite; }
     .scene--rag .r-under { animation: rag-under 10s linear infinite; }
     .scene--rag .r-tab { transform-box: fill-box; transform-origin: 0 50%; animation: rag-tab 10s cubic-bezier(.3,.7,.3,1) infinite; }
@@ -73,12 +82,13 @@ export default {
     .scene--rag .r-answer1 { animation: rag-answer1 10s linear infinite; }
     .scene--rag.is-paused * { animation-play-state: paused; }
     .scene--rag.is-still * { animation: none; }
-    .scene--rag.is-still .r-flip0, .scene--rag.is-still .r-flip1, .scene--rag.is-still .r-flip2 { transform: scaleX(-1); }
-    @media (prefers-reduced-motion: reduce) { .scene--rag * { animation: none !important; } .scene--rag [class^='r-flip'] { transform: scaleX(-1); } }
+    .scene--rag.is-still [class^='r-front'] { transform: scaleX(0); }
+    .scene--rag.is-still [class^='r-back'] { transform: none; }
+    @media (prefers-reduced-motion: reduce) { .scene--rag * { animation: none !important; } .scene--rag [class^='r-front'] { transform: scaleX(0); } .scene--rag [class^='r-back'] { transform: none; } }
     @keyframes rag-note { 0% { transform: translate(14px, -40px) rotate(-12deg); opacity: 0; } 4% { opacity: 1; } 9% { transform: translate(0, 2px) rotate(1deg); } 12%, 92% { transform: none; opacity: 1; } 100% { transform: none; opacity: 0; } }
-    ${Array.from({ length: FLIPS }, (_, i) => flip(i)).join('\n    ')}
+    ${Array.from({ length: FLIPS }, (_, i) => turn(i)).join('\n    ')}
     @keyframes rag-hand {
-      ${at('0%, 8%', R)} ${Array.from({ length: FLIPS }, (_, i) => `${at(`${11 + i * 10}%, ${12 + i * 10}%`, C)} ${at(`${18 + i * 10}%`, S)}`).join(' ')}
+      ${at('0%, 8%', R)} ${Array.from({ length: FLIPS }, (_, i) => `${at(`${11 + i * 10}%, ${12 + i * 10}%`, C, 'cubic-bezier(.5,0,.9,.6)')} ${at(`${15 + i * 10}%`, S)} ${at(`${19 + i * 10}%`, C)}`).join(' ')}
       ${at('44%', A0, 'linear')} ${at('52%', A1)} ${at('56%', T)} ${at('58%', T)} ${at('66%, 100%', R)}
     }
     ${drawn('under', 44, 52)} ${drawn('answer0', 66, 74)} ${drawn('answer1', 74, 80)}
@@ -108,8 +118,10 @@ export default {
       ink('r-under', G.line, 1.3),
       // the amber tab, stuck to the edge of the answer page
       `<g class="r-tab">${s([[146, 28], [168, 30], [168, 44], [146, 44]], { closed: true, fill: AMBER, fa: 0.28, c: AMBER, a: 0.9, w: 1, step: 6, j: 0.3 })}</g>`,
-      // the pages turned before the answer: opaque, so the one under shows only once they are gone
-      ...G.turned.map((pg, i) => `<g class="r-flip${i}">${s(PAGE_R, { closed: true, fill: PAGE, fa: 1, a: 0.55, w: 0.9, step: 14 })}${text(pg, 0.22)}</g>`).reverse(),
+      // the pages turned before the answer: opaque, so the one under shows only once they are gone;
+      // each has a front on the right and a back that lands on the left pile
+      ...G.turned.map((pg, i) => `<g transform="translate(${-1.6 * (i + 1)} ${0.8 * (i + 1)})"><g class="r-back${i}">${s(PAGE_L, { closed: true, fill: PAGE, fa: 1, a: 0.55, w: 0.9, step: 14 })}${text(pg.back, 0.22)}</g></g>`),
+      ...G.turned.map((pg, i) => `<g class="r-front${i}">${s(PAGE_R, { closed: true, fill: PAGE, fa: 1, a: 0.55, w: 0.9, step: 14 })}${text(pg.front, 0.22)}</g>`).reverse(),
       // the binder rings across the spine
       ...[-72, 0, 72].map((y) => s([[-12, y - 3], [-4, y - 6], [4, y - 6], [12, y - 3], [12, y + 3], [4, y + 6], [-4, y + 6], [-12, y + 3]], { closed: true, a: 0.55, w: 0.9, step: 4, j: 0.2 })),
       `<g class="r-hand">`,
