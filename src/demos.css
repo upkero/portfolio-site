@@ -12,7 +12,7 @@
 .demo__label { font-size: 15px; font-weight: 500; }
 .demo__status { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
 .demo__status::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
-.demo__status[data-state='up']::before { background: var(--ok); box-shadow: 0 0 0 0 rgba(159, 176, 146, 0.6); animation: demo-ping 2s infinite; }
+.demo__status[data-state='up']::before { background: var(--ok); }
 .demo__status[data-state='degraded']::before { background: var(--warn); }
 .demo__status[data-state='down']::before { background: var(--bad); }
 .demo__status[data-state='checking']::before { animation: demo-pulse 1.2s infinite; }
@@ -192,7 +192,6 @@ pre.json { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; font:
 @keyframes demo-rise { from { opacity: 0; transform: translateY(12px); } }
 @keyframes demo-grow { from { transform: scaleX(0); } }
 @keyframes demo-pulse { 50% { opacity: 0.35; } }
-@keyframes demo-ping { 70% { box-shadow: 0 0 0 7px rgba(159, 176, 146, 0); } 100% { box-shadow: 0 0 0 0 rgba(159, 176, 146, 0); } }
 
 @media (max-width: 860px) {
   .rag, .mcp__grid, .voice, .api { grid-template-columns: minmax(0, 1fr); }
