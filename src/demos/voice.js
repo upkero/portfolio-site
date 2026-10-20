@@ -2,11 +2,10 @@
 // audio flows browser ⇄ LiveKit over WebRTC. livekit-client is loaded only when the call starts.
 import { call } from '../live.js';
 import { esc, failText } from './ui.js';
+import { mountVisual } from '../visuals.js';
 
 // the worker loads its speech model when a call arrives, so the first join can take ~10 s
 const AGENT_GRACE_MS = 20000;
-const AMBER = '214,170,112';
-const SAGE = '150,165,140';
 
 export function mount(root, { lang, c, common, reduced, signal }) {
   root.innerHTML = `
@@ -28,7 +27,6 @@ export function mount(root, { lang, c, common, reduced, signal }) {
   };
   setTry(c.tryLabel, c.tryLines);
   const canvas = root.querySelector('canvas');
-  const ctx = canvas.getContext('2d');
 
   let room = null, phase = 'idle', failure = null, agentHere = false, overdue = false, blocked = false, greeted = false;
   // fetch the WebRTC client while the visitor reads the case, not after they press "call"
@@ -59,7 +57,8 @@ export function mount(root, { lang, c, common, reduced, signal }) {
     };
     controls.innerHTML = views[phase]();
   }
-  const set = (p) => { phase = p; render(); };
+  // the stage follows the call: data-call on the scene picks its state in CSS
+  const set = (p) => { phase = p; root.querySelector('.voice__stage .scene')?.setAttribute('data-call', p); render(); };
   controls.addEventListener('click', (e) => {
     const act = e.target.closest('[data-act]')?.dataset.act;
     if (act === 'start') start();
@@ -179,57 +178,22 @@ export function mount(root, { lang, c, common, reduced, signal }) {
     if (r) await r.disconnect(); else set('ended');
   }
 
-  /* ---------- audio-reactive visual ---------- */
-  const hist = [];
-  let raf = 0, last = 0, w = 0, h = 0;
-  const dpr = Math.min(devicePixelRatio || 1, 1.5);
-  const ro = new ResizeObserver(() => {
-    w = canvas.clientWidth; h = canvas.clientHeight;
-    canvas.width = w * dpr; canvas.height = h * dpr;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw(performance.now());
-  });
-  ro.observe(canvas);
-  function glow(x, y, r, col, a) {
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, `rgba(${col},${a})`);
-    g.addColorStop(1, `rgba(${col},0)`);
-    ctx.fillStyle = g;
-    ctx.fillRect(x - r, y - r, r * 2, r * 2);
-  }
-  function draw(now) {
-    if (!w) return;
-    const lv = Math.min(1, localVol() * 2.2), rv = Math.min(1, remoteVol() * 2.2);
+  /* ---------- the stage: the voice card's scene, driven by the call ---------- */
+  // still before the call, the handset sways while it lasts and its marks follow her voice, the booking is in the book after
+  const viz = mountVisual(canvas, 'voice', { reduced });
+  const scene = root.querySelector('.voice__stage .scene');
+  scene?.classList.add('is-demo');
+  let raf = 0, last = 0;
+  function draw() {
+    const rv = Math.min(1, remoteVol() * 2.2);
     if (rv > 0.05) heard(); // her voice is on the line: the greeting has started
-    hist.push([lv, rv]);
-    if (hist.length > 72) hist.shift();
-    const m = Math.min(w, h), cx = w / 2, cy = h * 0.42, t = now / 1000;
-    const on = phase === 'live';
-    ctx.clearRect(0, 0, w, h);
-    for (let i = 0; i < 4; i++) {
-      const k = (t * (on ? 0.5 : 0.25) + i / 4) % 1;
-      ctx.beginPath();
-      ctx.arc(cx, cy, m * (0.12 + k * 0.3) * (1 + lv * 0.25), 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(${lv > 0.05 ? SAGE : '241,239,233'},${(1 - k) * (0.12 + lv * 0.6)})`;
-      ctx.stroke();
-    }
-    glow(cx, cy, m * (0.3 + rv * 0.25), AMBER, on ? 0.18 + rv * 0.5 : 0.1);
-    ctx.beginPath();
-    ctx.arc(cx, cy, m * 0.075 * (1 + rv * 0.6 + (on ? 0 : 0.04 * Math.sin(t * 2))), 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${AMBER},${on ? 0.95 : 0.5})`;
-    ctx.fill();
-    const span = w * 0.8, x0 = (w - span) / 2, bw = span / 72, by = h * 0.82;
-    hist.forEach(([l, rr], i) => {
-      const v = Math.max(l, rr), amp = 1.5 + v * h * 0.1;
-      ctx.fillStyle = `rgba(${rr >= l ? AMBER : SAGE},${0.25 + v * 0.75})`;
-      ctx.fillRect(x0 + i * bw + bw * 0.25, by - amp, bw * 0.5, amp * 2);
-    });
+    scene?.style.setProperty('--mila', rv.toFixed(2));
   }
   const loop = (now) => {
     raf = requestAnimationFrame(loop);
     if (now - last < 33) return;
     last = now;
-    draw(now);
+    draw();
   };
   if (!reduced) raf = requestAnimationFrame(loop);
 
@@ -237,7 +201,7 @@ export function mount(root, { lang, c, common, reduced, signal }) {
   return {
     destroy() {
       cancelAnimationFrame(raf);
-      ro.disconnect();
+      viz.destroy();
       leaving = true;
       cleanup();
       room?.disconnect();

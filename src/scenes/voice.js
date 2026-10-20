@@ -62,6 +62,14 @@ export default {
     .scene--voice.is-paused * { animation-play-state: paused; }
     .scene--voice.is-still * { animation: none; }
     @media (prefers-reduced-motion: reduce) { .scene--voice * { animation: none !important; } }
+    /* inside the voice demo (.is-demo) the loop is off and the call drives the scene through data-call and --mila */
+    .scene--voice.is-demo * { animation: none; }
+    .scene--voice.is-demo .v-ink { stroke-dashoffset: 1; transition: stroke-dashoffset 2.4s linear; }
+    .scene--voice.is-demo .v-tick { stroke-dashoffset: 1; transition: stroke-dashoffset 0.5s linear 2.4s; }
+    .scene--voice.is-demo[data-call='ended'] .v-ink, .scene--voice.is-demo[data-call='ended'] .v-tick { stroke-dashoffset: 0; }
+    .scene--voice.is-demo .v-bell { opacity: var(--mila, 0); transition: opacity 0.12s; }
+    .scene--voice.is-demo[data-call='live'] .v-ring { animation: voice-sway 2.6s ease-in-out infinite alternate; }
+    @keyframes voice-sway { from { transform: rotate(-1.4deg); } to { transform: rotate(1.4deg); } }
     @keyframes voice-ring { 0% { transform: none; } ${shake(1, 6)} ${shake(9, 14)} 100% { transform: none; } }
     @keyframes voice-bell { 0%, 1% { opacity: 0; } 2%, 6% { opacity: 1; } 8% { opacity: 0; } 10%, 14% { opacity: 1; } 16%, 100% { opacity: 0; } }
     @keyframes voice-hand {
