@@ -324,6 +324,7 @@ const DRAWERS = { voice, sales, rag, mcp, core };
 export function mountVisual(canvas, id, { reduced }) {
   if (SCENES[id]) return mountScene(canvas, SCENES[id], { reduced });
   const draw = DRAWERS[id];
+  if (!draw) return { state: {}, destroy() {} };
   const ctx = canvas.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   const state = {};
