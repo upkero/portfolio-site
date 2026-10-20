@@ -206,7 +206,8 @@ pre.json { margin: 8px 0 0; white-space: pre-wrap; word-break: break-word; font:
   .api__tabs { flex-direction: row; overflow-x: auto; border-left: 0; border-bottom: 1px solid var(--line); margin-bottom: 20px; grid-row: auto; }
   .api__tab { margin: 0 0 -1px; border-left: 0; border-bottom: 1px solid transparent; white-space: nowrap; }
   .api__tab[aria-selected='true'] { border-color: var(--warn); }
-  .mcp__viz { aspect-ratio: 16 / 9; }
+  /* the desk scene needs its corners: calendar top left, envelope bottom left */
+  .mcp__viz { aspect-ratio: 1; }
   .voice__stage { aspect-ratio: 16 / 10; }
   .console { height: 360px; }
 }
