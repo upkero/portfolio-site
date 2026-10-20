@@ -1,122 +1,146 @@
-// Ops core card: the wall board everyone works from, the week's schedule and the price list pinned side by side.
-// A booking slides into a free slot, a second one for the same slot bounces off, the matching price gets ticked.
-import { AMBER, FG, PAGE, ellipse, pen, poly } from '../sketch.js';
+// Ops core card: the ticket rail on the kitchen wall, the one place every booking ends up.
+// Tickets from the phone, the chat and the staff are clipped on in time order; a second ticket for a taken slot is crumpled
+// and lands on the pass below, next to the service bell.
+import { AMBER, FG, PAGE, pen, poly } from '../sketch.js';
 
-const GRID = { x: 62, y: 118, cw: 34, ch: 32, cols: 5, rows: 8 };
-const FREE = [2, 4];
-const cell = (c, r) => [GRID.x + c * GRID.cw, GRID.y + r * GRID.ch];
+const RAIL = 150;
+const SHELF = 392;
+const TW = 28, TH = 124; // half width, height of a ticket
+// where each ticket came from, drawn small in its header
+const GLYPH = {
+  phone: [[-6, -2], [-3, -4], [3, -4], [6, -2], [6, 2], [3, 2], [3, 0], [-3, 0], [-3, 2], [-6, 2]],
+  chat: [[-6, -5], [6, -5], [6, 2], [0, 2], [-3, 5], [-3, 2], [-6, 2]],
+  staff: [[-5, 5], [4, -4], [6, -2], [-3, 7], [-6, 7]],
+};
+const HUNG = [
+  { x: 52, a: -2, from: 'phone' },
+  { x: 114, a: 1.5, from: 'staff' },
+  { x: 176, a: -1, from: 'chat' },
+];
+const NEW = [
+  { x: 238, a: 1, from: 'phone', cls: 'c-t1' },
+  { x: 300, a: -1.5, from: 'chat', cls: 'c-t2', amber: true },
+];
+const DUP = { x: 300, a: -1.5, from: 'staff', cls: 'c-dup' };
 
 function geometry(p) {
-  const head = p.script(64, 150, 88, 1.8);
-  const days = Array.from({ length: GRID.cols }, (_, c) => p.script(GRID.x + c * GRID.cw + 6, GRID.x + c * GRID.cw + 24, GRID.y - 10, 1));
-  const taken = [];
-  for (let c = 0; c < GRID.cols; c++) for (let r = 0; r < GRID.rows; r++) {
-    if ((c === FREE[0] && r === FREE[1]) || p.r() < 0.5) continue;
-    taken.push({ c, r, text: p.script(cell(c, r)[0] + 7, cell(c, r)[0] + 16 + p.r() * 10, cell(c, r)[1] + GRID.ch / 2, 0.9) });
-  }
-  const prices = [0, 1, 2, 3, 4, 5].map((i) => ({ y: 132 + i * 26, name: p.script(282, 304 + p.r() * 10, 132 + i * 26, 1), cost: p.script(334, 350, 132 + i * 26, 1) }));
-  const [fx, fy] = cell(...FREE);
-  const card = { x: fx + 3, y: fy + 3, w: GRID.cw - 6, h: GRID.ch - 6 };
-  const cardText = p.script(card.x + 4, card.x + card.w - 5, card.y + card.h / 2, 0.9).flat();
-  const tick = [[270, prices[2].y], [274, prices[2].y + 4], [282, prices[2].y - 6]];
-  return { head, days, taken, prices, card, cardText, tick };
+  const ticket = () => ({
+    time: p.script(-6, 20, 18, 1.4),
+    lines: Array.from({ length: 6 }, (_, i) => p.script(-20, -2 + p.r() * 20, 40 + i * 11, 0.9)),
+    total: p.script(4, 20, TH - 18, 1.1),
+  });
+  const tickets = [...HUNG, ...NEW, DUP].map(ticket);
+  // a crumpled ticket: an uneven ball with a few creases
+  const ball = Array.from({ length: 11 }, (_, i) => {
+    const a = (i / 11) * Math.PI * 2, rr = 13 + p.r() * 5;
+    return [Math.cos(a) * rr, Math.sin(a) * rr];
+  });
+  const creases = Array.from({ length: 4 }, () => [[(p.r() - 0.5) * 18, (p.r() - 0.5) * 18], [(p.r() - 0.5) * 22, (p.r() - 0.5) * 22], [(p.r() - 0.5) * 18, (p.r() - 0.5) * 18]]);
+  return { tickets, ball, creases };
 }
 
 const G = geometry(pen(33));
+const arrive = (name, from, a, b) => `@keyframes core-${name} {
+      0%, ${a}% { transform: ${from}; opacity: 0; animation-timing-function: cubic-bezier(.3,.7,.3,1); }
+      ${a + 2}% { opacity: 1; }
+      ${b}% { transform: translate(0, -5px) rotate(-1.5deg); animation-timing-function: ease-out; }
+      ${b + 3}%, 92% { transform: none; opacity: 1; }
+      100% { transform: none; opacity: 0; }
+    }`;
 
 export default {
   id: 'core',
-  // cropped in on the board, same 4:4.6 shape as the card
-  viewBox: '28 48 344 396',
-  // 10 s: the booking slides in and settles, a second booking for the same slot bumps and falls away, the price is ticked
+  // cropped in a little on the rail and the pass, same 4:4.6 shape as the card
+  viewBox: '16 66 368 423',
+  // 10 s: a phone booking and a chat booking go up on the rail; a staff ticket for the chat's slot bumps it and is crumpled
   css: `
-    .scene--core .c-in, .scene--core .c-out { transform-box: fill-box; transform-origin: 50% 50%; }
-    .scene--core .c-in { animation: core-in 10s cubic-bezier(.3,.7,.3,1) infinite; }
-    .scene--core .c-out { opacity: 0; animation: core-out 10s cubic-bezier(.4,0,.4,1) infinite; }
-    .scene--core .c-tick { animation: core-tick 10s linear infinite; }
-    .scene--core .c-pin { transform-box: fill-box; transform-origin: 50% 50%; animation: core-pin 10s cubic-bezier(.3,.7,.3,1) infinite; }
+    .scene--core .c-t1, .scene--core .c-t2, .scene--core .c-dup, .scene--core .c-ball { transform-box: fill-box; transform-origin: 50% 0; }
+    .scene--core .c-t1 { animation: core-t1 10s infinite; }
+    .scene--core .c-t2 { animation: core-t2 10s infinite; }
+    .scene--core .c-t2 > g { transform-box: fill-box; transform-origin: 50% 0; animation: core-nudge 10s ease-in-out infinite; }
+    .scene--core .c-dup { opacity: 0; animation: core-dup 10s infinite; }
+    .scene--core .c-ball { opacity: 0; transform-origin: 50% 50%; animation: core-ball 10s infinite; }
     .scene--core.is-paused * { animation-play-state: paused; }
     .scene--core.is-still * { animation: none; }
     @media (prefers-reduced-motion: reduce) { .scene--core * { animation: none !important; } }
-    @keyframes core-in {
-      0%, 8% { transform: translate(250px, 120px) rotate(14deg); opacity: 0; }
-      11% { opacity: 1; }
-      24% { transform: translate(-2px, 1px) rotate(-2deg); }
-      28%, 92% { transform: none; opacity: 1; }
-      100% { transform: none; opacity: 0; }
+    ${arrive('t1', 'translate(-190px, 340px) rotate(-24deg)', 6, 18)}
+    ${arrive('t2', 'translate(70px, 350px) rotate(22deg)', 24, 36)}
+    @keyframes core-dup {
+      0%, 46% { transform: translate(120px, 340px) rotate(26deg); opacity: 0; animation-timing-function: cubic-bezier(.3,.7,.3,1); }
+      48% { opacity: 1; }
+      56% { transform: translate(10px, 26px) rotate(5deg); animation-timing-function: ease-in; }
+      58% { transform: translate(16px, 30px) rotate(9deg); opacity: 1; }
+      60%, 100% { transform: translate(16px, 60px) rotate(9deg) scale(0.4, 0.2); opacity: 0; }
     }
-    @keyframes core-out {
-      0%, 32% { transform: translate(250px, 150px) rotate(18deg); opacity: 0; }
-      35% { opacity: 1; }
-      44% { transform: translate(7px, -3px) rotate(3deg); }
-      46% { transform: translate(18px, -1px) rotate(7deg); }
-      48% { transform: translate(13px, -2px) rotate(5deg); opacity: 1; }
-      60% { transform: translate(110px, 190px) rotate(32deg); opacity: 0; }
-      100% { transform: translate(110px, 190px) rotate(32deg); opacity: 0; }
+    @keyframes core-nudge { 0%, 55.5% { transform: none; } 57% { transform: rotate(-3deg); } 59% { transform: rotate(1.5deg); } 61%, 100% { transform: none; } }
+    @keyframes core-ball {
+      0%, 59% { transform: translate(18px, 0); opacity: 0; }
+      60% { transform: translate(18px, 0) rotate(0deg); opacity: 1; animation-timing-function: cubic-bezier(.5,0,1,1); }
+      69% { transform: translate(18px, ${SHELF - RAIL - 74}px) rotate(140deg); animation-timing-function: ease-out; }
+      72% { transform: translate(30px, ${SHELF - RAIL - 84}px) rotate(190deg); animation-timing-function: ease-in; }
+      75% { transform: translate(40px, ${SHELF - RAIL - 74}px) rotate(220deg); animation-timing-function: ease-out; }
+      80%, 92% { transform: translate(52px, ${SHELF - RAIL - 74}px) rotate(250deg); opacity: 1; }
+      100% { transform: translate(52px, ${SHELF - RAIL - 74}px) rotate(250deg); opacity: 0; }
     }
-    @keyframes core-pin { 0%, 25% { transform: translate(-6px, -10px) scale(1.7); opacity: 0; } 28% { opacity: 1; } 31% { transform: scale(0.94); } 33%, 92% { transform: none; opacity: 1; } 100% { transform: none; opacity: 0; } }
-    @keyframes core-tick { 0%, 62% { stroke-dashoffset: 1; } 68%, 92% { stroke-dashoffset: 0; opacity: 1; } 100% { stroke-dashoffset: 0; opacity: 0; } }
   `,
   draw() {
     const p = pen(33);
     geometry(p); // same seed, same order: the strokes below get the same jitter on every load
     const s = p.stroke;
-    const box = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
-    // pinned paper casts a short shadow down and to the left
-    const shadow = (id, x, y, w, h) => `<clipPath id="core-${id}"><path d="M${x - 8} ${y + 6} L${x} ${y} L${x} ${y + h} L${x + w} ${y + h} L${x + w - 6} ${y + h + 8} L${x - 8} ${y + h + 8} Z"/></clipPath>
-      <g clip-path="url(#core-${id})">${p.hatch(x - 10, y, x + w, y + h + 10, 3, 0.9, { a: 0.2 })}</g>`;
-    const pin = (x, y) => `<clipPath id="core-pin-${x}"><path d="M${x - 9} ${y - 2} a7 7 0 0 0 12 6 l-4 6 a9 9 0 0 1 -10 -10 Z"/></clipPath>
-      <g clip-path="url(#core-pin-${x})">${p.hatch(x - 12, y - 4, x + 4, y + 14, 2, 0.9, { a: 0.3 })}</g>
-      ${s(ellipse(x, y, 6, 6, 18), { closed: true, fill: PAGE, fa: 1, a: 0.65, w: 0.9, step: 3, j: 0.2 })}
-      ${s([[x + 1, y - 4], [x + 3.5, y - 2.5], [x + 4, y]], { a: 0.6, w: 0.8, step: 2, j: 0.1 })}`;
+    const zig = Array.from({ length: 8 }, (_, i) => [TW - i * (TW * 2 / 7), TH + (i % 2 ? 0 : 5)]);
+    const outline = [[-TW, 0], [TW, 0], ...zig];
 
-    const board = [
-      s(box(20, 30, 360, 404), { closed: true, a: 0.5, w: 0.9, step: 16 }),
-      s(box(32, 42, 336, 380), { closed: true, a: 0.4, w: 0.8, step: 16 }),
-      // the frame's inner bevel in the shade: left and bottom
-      `<clipPath id="core-bevel"><path d="M20 30 L32 42 L32 422 L368 422 L380 434 L20 434 Z"/></clipPath>`,
-      `<g clip-path="url(#core-bevel)">${p.hatch(18, 28, 382, 436, 2.6, 0.9, { a: 0.24 })}</g>`,
-      `<clipPath id="core-felt"><path d="M32 42 H368 V422 H32 Z"/></clipPath>`,
-      `<g clip-path="url(#core-felt)">${p.hatch(32, 42, 368, 422, 9, 1.1, { a: 0.04 })}</g>`,
+    const ticket = (t, g, { amber = false, dashed = false } = {}) => {
+      const c = amber ? AMBER : FG;
+      const ink = { c, a: amber ? 0.85 : 0.34, w: 0.7, j: 0.15, step: 2.2 };
+      return `<clipPath id="core-sh-${t.x}${t.cls || ''}"><path d="M${-TW - 7} 6 L${-TW} 0 L${-TW} ${TH} L${TW} ${TH} L${TW - 5} ${TH + 8} L${-TW - 7} ${TH + 8} Z"/></clipPath>
+        <g clip-path="url(#core-sh-${t.x}${t.cls || ''})">${p.hatch(-TW - 8, 0, TW, TH + 10, 3, 0.9, { a: 0.2 })}</g>
+        ${s(outline, { closed: true, fill: PAGE, fa: 1, c, a: amber ? 0.95 : 0.6, w: amber ? 1.2 : 0.9, step: 12, attrs: dashed ? 'stroke-dasharray="5 3"' : '' })}
+        <g transform="translate(-16 18)">${s(GLYPH[t.from], { closed: t.from !== 'staff', c, a: amber ? 0.95 : 0.55, w: 0.9, step: 3, j: 0.2 })}</g>
+        ${g.time.map((st) => s(st, { ...ink, a: amber ? 0.95 : 0.55, w: 1.1 })).join('')}
+        ${s([[-TW + 6, 28], [TW - 6, 28]], { c, a: amber ? 0.5 : 0.2, w: 0.7, step: 20 })}
+        ${g.lines.flat().map((st) => s(st, ink)).join('')}
+        ${s([[-TW + 6, TH - 28], [TW - 6, TH - 28]], { c, a: amber ? 0.4 : 0.16, w: 0.6, step: 20, attrs: 'stroke-dasharray="2 3"' })}
+        ${g.total.map((st) => s(st, { ...ink, a: amber ? 0.95 : 0.5, w: 1 })).join('')}`;
+    };
+    const hang = (t, body) => `<g transform="translate(${t.x} ${RAIL - 12}) rotate(${t.a})">${body}</g>`;
+
+    // the wall: faint subway tiles
+    const wall = [];
+    for (let r = 0; r < 24; r++) {
+      wall.push(s([[0, r * 20], [400, r * 20]], { a: 0.045, w: 0.6, step: 40 }));
+      for (let x = (r % 2) * 20; x < 400; x += 40) wall.push(s([[x, r * 20], [x, r * 20 + 20]], { a: 0.045, w: 0.6, step: 20 }));
+    }
+
+    const rail = [
+      `<clipPath id="core-rail"><path d="M14 ${RAIL - 7} H386 V${RAIL + 7} H14 Z"/></clipPath>`,
+      s([[14, RAIL - 7], [386, RAIL - 7], [386, RAIL + 7], [14, RAIL + 7]], { closed: true, fill: PAGE, fa: 1, a: 0.65, w: 0.9, step: 20 }),
+      // a steel bar, round: dark underside, one bright line where the light catches it
+      `<g clip-path="url(#core-rail)">${p.hatch(14, RAIL, 386, RAIL + 7, 2, 0.12, { a: 0.3 })}</g>`,
+      s([[18, RAIL - 4], [382, RAIL - 4]], { a: 0.5, w: 0.6, step: 30 }),
+      ...[30, 370].map((x) => s([[x - 7, RAIL - 16], [x + 7, RAIL - 16], [x + 7, RAIL + 12], [x - 7, RAIL + 12]], { closed: true, fill: PAGE, fa: 1, a: 0.6, w: 0.9, step: 8 }) +
+        s([[x - 2, RAIL - 10], [x + 2, RAIL - 10], [x + 2, RAIL - 6], [x - 2, RAIL - 6]], { closed: true, a: 0.5, w: 0.7, step: 2, j: 0.1 })),
     ];
 
-    const sched = [
-      shadow('sched', 50, 66, 196, 384 - 66),
-      s(box(50, 66, 196, 384 - 66), { closed: true, fill: PAGE, fa: 0.7, a: 0.6, w: 0.9, step: 14 }),
-      ...G.head.map((st) => s(st, { a: 0.5, w: 0.9, j: 0.2, step: 2.2 })),
-      ...G.days.flat().map((st) => s(st, { a: 0.4, w: 0.7, j: 0.2, step: 2.2 })),
-      ...Array.from({ length: GRID.cols + 1 }, (_, c) => s([cell(c, 0), cell(c, GRID.rows)], { a: 0.14, w: 0.6, step: 30 })),
-      ...Array.from({ length: GRID.rows + 1 }, (_, r) => s([cell(0, r), cell(GRID.cols, r)], { a: 0.14, w: 0.6, step: 30 })),
-      ...G.taken.map(({ c, r, text }) => {
-        const [x, y] = cell(c, r);
-        return s(box(x + 3, y + 3, GRID.cw - 6, GRID.ch - 6), { closed: true, fill: PAGE, fa: 0.9, a: 0.4, w: 0.7, step: 8, j: 0.3 }) +
-          text.map((st) => s(st, { a: 0.32, w: 0.7, j: 0.15, step: 2.2 })).join('');
-      }),
-      pin(62, 76), pin(234, 76),
+    // the pass below the rail, and its service bell
+    const pass = [
+      s([[0, SHELF], [400, SHELF], [400, SHELF + 12], [0, SHELF + 12]], { closed: true, fill: PAGE, fa: 1, a: 0.55, w: 0.9, step: 20 }),
+      `<clipPath id="core-pass"><path d="M0 ${SHELF} H400 V${SHELF + 12} H0 Z"/></clipPath><g clip-path="url(#core-pass)">${p.hatch(0, SHELF, 400, SHELF + 12, 2.6, 1.2, { a: 0.22 })}</g>`,
+      s([[40, SHELF - 6], [104, SHELF - 6], [106, SHELF], [38, SHELF]], { closed: true, fill: PAGE, fa: 1, a: 0.6, w: 0.9, step: 8 }),
+      s([[46, SHELF - 6], [48, SHELF - 20], [58, SHELF - 30], [72, SHELF - 33], [86, SHELF - 30], [96, SHELF - 20], [98, SHELF - 6]], { closed: true, fill: PAGE, fa: 1, a: 0.65, w: 0.9, step: 4, j: 0.3 }),
+      `<clipPath id="core-bell"><path d="M46 ${SHELF - 6} L48 ${SHELF - 20} L58 ${SHELF - 30} L72 ${SHELF - 33} L72 ${SHELF - 6} Z"/></clipPath><g clip-path="url(#core-bell)">${p.hatch(40, SHELF - 36, 74, SHELF - 4, 2.2, 0.9, { a: 0.26 })}</g>`,
+      s([[82, SHELF - 27], [90, SHELF - 21], [93, SHELF - 14]], { a: 0.6, w: 0.8, step: 3, j: 0.1 }),
+      s([[69, SHELF - 33], [69, SHELF - 39], [75, SHELF - 39], [75, SHELF - 33]], { closed: true, fill: PAGE, fa: 1, a: 0.6, w: 0.8, step: 3, j: 0.1 }),
     ];
+    const n = HUNG.length;
+    const hung = HUNG.map((t, i) => hang(t, ticket(t, G.tickets[i])));
+    const fresh = NEW.map((t, i) => hang(t, `<g class="${t.cls}"><g>${ticket(t, G.tickets[n + i], { amber: t.amber })}</g></g>`));
+    const dup = hang(DUP, `<g class="c-dup">${ticket(DUP, G.tickets[n + NEW.length], { dashed: true })}</g>
+      <g transform="translate(0 70)"><g class="c-ball">
+        ${s(G.ball, { closed: true, fill: PAGE, fa: 1, a: 0.6, w: 0.9, step: 4, j: 0.6 })}
+        <clipPath id="core-ball"><path d="${poly(G.ball)}"/></clipPath><g clip-path="url(#core-ball)">${p.hatch(-20, 0, 20, 20, 2.4, 0.9, { a: 0.25 })}</g>
+        ${G.creases.map((c) => s(c, { a: 0.4, w: 0.7, step: 4, j: 0.5 })).join('')}</g></g>`);
 
-    const list = [
-      shadow('list', 266, 96, 94, 196),
-      s(box(266, 96, 94, 196), { closed: true, fill: PAGE, fa: 0.7, a: 0.6, w: 0.9, step: 12 }),
-      s([[278, 112], [318, 112]], { a: 0.45, w: 1.3, step: 8 }),
-      ...G.prices.flatMap(({ y, name, cost }) => [
-        ...name.map((st) => s(st, { a: 0.34, w: 0.7, j: 0.15, step: 2.2 })),
-        s([[310, y + 2], [330, y + 2]], { a: 0.2, w: 0.7, step: 30, attrs: 'stroke-dasharray="1 4"' }),
-        ...cost.map((st) => s(st, { a: 0.45, w: 0.8, j: 0.15, step: 2.2 })),
-      ]),
-      pin(313, 104),
-    ];
-
-    const { x, y, w, h } = G.card;
-    const bookingCard = (cls, c, a) => `<g class="${cls}">
-      ${s(box(x, y, w, h), { closed: true, fill: PAGE, fa: 1, c, a, w: 1.1, step: 8, j: 0.3 })}
-      ${s(G.cardText, { c, a: a * 0.8, w: 0.8, j: 0.15, step: 2.2 })}</g>`;
-
-    return `<g stroke-linecap="round" stroke-linejoin="round">${board.join('')}
-      <g transform="rotate(-1.5 148 225)">${sched.join('')}</g>
-      <g transform="rotate(2 313 194)">${list.join('')}
-        <path class="c-tick" d="${poly(G.tick)}" pathLength="1" stroke-dasharray="1" fill="none" stroke="${AMBER}" stroke-width="1.5"/></g>
-      <g transform="rotate(-1.5 148 225)">${bookingCard('c-out', FG, 0.6)}${bookingCard('c-in', AMBER, 1)}
-        <g class="c-pin">${pin(x + w / 2, y + 2)}</g></g></g>`;
+    return `<g stroke-linecap="round" stroke-linejoin="round">${wall.join('')}${pass.join('')}${hung.join('')}${fresh.join('')}${dup}${rail.join('')}</g>`;
   },
 };
