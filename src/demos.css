@@ -19,7 +19,7 @@
 .demo__note { flex-basis: 100%; color: var(--dim); font-size: 13px; max-width: 70ch; }
 .demo__intro { color: var(--muted); max-width: 62ch; margin-bottom: 28px; font-size: clamp(15px, 1.2vw, 17px); }
 .demo__kicker, .suggest__label { font-size: 14px; color: var(--dim); }
-.demo__empty h4, .demo__off h4, .voice__msg h4 { font-family: var(--display); font-weight: 300; font-size: clamp(1.4rem, 2.2vw, 2rem); letter-spacing: -0.005em; line-height: 1.15; }
+.demo__empty h4, .demo__off h4, .voice__msg h4 { font-weight: 300; font-size: clamp(1.4rem, 2.2vw, 2rem); letter-spacing: -0.02em; line-height: 1.15; }
 .demo__empty p, .demo__off p, .voice__msg p { margin-top: 10px; color: var(--muted); max-width: 52ch; }
 .demo__waiting { font-size: 15px; color: var(--muted); animation: demo-pulse 1.4s ease-in-out infinite; }
 .demo__trouble { border-left: 1px solid var(--warn); padding-left: 16px; max-width: 56ch; }
