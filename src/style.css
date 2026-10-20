@@ -227,7 +227,7 @@ main > section:not(.hero):not(.contact), .marquee { background: var(--bg); posit
 .card__live:empty { display: none; }
 .card__live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--dim); }
 .card__live[data-state='up'] { color: var(--fg); }
-.card__live[data-state='up']::before { background: #9fb092; box-shadow: 0 0 10px rgba(159, 176, 146, 0.8); }
+.card__live[data-state='up']::before { background: #9fb092; }
 .card__media {
   position: relative; aspect-ratio: 4 / 4.6; overflow: hidden;
   background:
