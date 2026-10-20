@@ -1,7 +1,7 @@
 // All copy lives here. Keys map to [data-i18n] attributes in index.html.
 
 export const CONTACTS = {
-  email: 'upkero@icloud.com',
+  email: 'hello@upkero.com',
   github: 'https://github.com/upkero',
   // Empty hides the Telegram button; set to 'https://t.me/<handle>' to show it.
   telegram: '',
