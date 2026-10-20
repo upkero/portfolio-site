@@ -99,7 +99,7 @@
   position: relative; aspect-ratio: 1; overflow: hidden;
   background: radial-gradient(85% 65% at 72% 14%, rgba(84, 99, 72, 0.6), transparent 72%), radial-gradient(70% 55% at 12% 100%, rgba(214, 170, 112, 0.14), transparent 70%), var(--well);
 }
-.mcp__viz canvas, .voice__stage canvas { display: block; width: 100%; height: 100%; }
+.mcp__viz canvas, .mcp__viz .scene, .voice__stage canvas { display: block; width: 100%; height: 100%; }
 .console {
   background: var(--well); border: 1px solid var(--line); padding: 6px 20px;
   height: clamp(320px, 38vw, 500px); overflow-y: auto; font-family: var(--mono); font-size: 12.5px;

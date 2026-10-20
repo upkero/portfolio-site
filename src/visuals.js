@@ -1,4 +1,10 @@
-// Generative canvas visuals, one per project. Each drawer gets (ctx, w, h, t, state) in CSS pixels.
+// Card visuals, one per project. A hand-drawn scene from ./scenes wins; otherwise the canvas drawer below,
+// which gets (ctx, w, h, t, state) in CSS pixels.
+import { mountScene } from './sketch.js';
+
+const SCENES = Object.fromEntries(
+  Object.values(import.meta.glob('./scenes/*.js', { eager: true })).map((m) => [m.default.id, m.default]),
+);
 
 const FG = '241,239,233';
 const AMBER = '214,170,112';
@@ -316,6 +322,7 @@ function core(ctx, w, h, t) {
 const DRAWERS = { voice, sales, rag, mcp, core };
 
 export function mountVisual(canvas, id, { reduced }) {
+  if (SCENES[id]) return mountScene(canvas, SCENES[id], { reduced });
   const draw = DRAWERS[id];
   const ctx = canvas.getContext('2d');
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
