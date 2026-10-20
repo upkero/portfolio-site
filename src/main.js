@@ -55,6 +55,7 @@ $('[data-work]').innerHTML = projects.map((p) => `
     </div>
   </article>`).join('') + `
   <div class="card card--cta">
+    <canvas data-visual="cta" aria-hidden="true"></canvas>
     <p data-i18n="work.ctaTitle"></p>
     <a class="pill pill--solid" href="#contact" data-i18n="work.ctaBtn"></a>
   </div>`;

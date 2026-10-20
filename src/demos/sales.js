@@ -98,7 +98,7 @@ export function mount(root, { lang, c, common, signal, setStatus }) {
     conversationId = r.data.conversation_id;
     stage = r.data.stage;
     lastReply = r.data.reply;
-    log.append(turn('Alex', r.data.reply, false, esc(`${c.stages[stage]?.[0] ?? stage} · ${secs(r.ms)}`)));
+    log.append(turn(c.agent, r.data.reply, false, esc(`${c.stages[stage]?.[0] ?? stage} · ${secs(r.ms)}`)));
     renderRail();
     renderNext();
 
