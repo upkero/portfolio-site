@@ -42,7 +42,8 @@ export const server = http.createServer(async (req, res) => {
     res.setHeader('Content-Type', TYPES[extname(file)] || 'application/octet-stream');
     if (path.startsWith('assets')) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
     createReadStream(file).on('error', (e) => fail(res, e.code === 'ENOENT' ? 404 : 500)).pipe(res);
-  } catch {
+  } catch (e) {
+    console.log(JSON.stringify({ level: 'ERROR', msg: 'server_error', error: e.name }));
     fail(res, 500);
   }
 });
