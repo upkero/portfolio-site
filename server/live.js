@@ -38,7 +38,7 @@ const ROUTES = [
 const WINDOW = 60_000;
 const LIMITS = {
   free: [300, WINDOW], search: [30, WINDOW], book: [30, WINDOW],
-  rag: [10, WINDOW], sales: [30, WINDOW], mcp: [6, WINDOW], voice: [6, WINDOW],
+  rag: [10, WINDOW], sales: [20, WINDOW], mcp: [6, WINDOW], voice: [6, WINDOW],
 };
 
 /** In-memory sliding window. `hit` returns 0 when allowed, else the seconds until a slot frees up. */
