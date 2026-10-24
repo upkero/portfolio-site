@@ -3,6 +3,8 @@ import { health } from '../live.js';
 import { COPY } from './copy.js';
 import { esc, html } from './ui.js';
 
+// the developer hint is for whoever runs the stack locally, never for a visitor
+const DEV = ['localhost', '127.0.0.1'].includes(location.hostname);
 const REPO = { voice: 'voice-agent-service', sales: 'sales-agent-service', rag: 'rag-chat-service', mcp: 'mcp-ops-agent', core: 'ops-core-api' };
 const LOADERS = {
   rag: () => import('./rag.js'),
@@ -46,7 +48,7 @@ export function mountDemo(root, id, { lang, reduced }) {
           <button class="pill pill--sm" type="button" data-retry>${esc(c.common.retry)}</button>
           <a class="pill pill--sm pill--solid" href="#contact" data-close-case>${esc(c.common.write)}</a>
         </div>
-        <code class="demo__hint">${esc(c.common.hint(REPO[id]))}</code>
+        ${DEV ? `<code class="demo__hint">${esc(c.common.hint(REPO[id]))}</code>` : ''}
       </div>`;
     body.querySelector('[data-retry]').addEventListener('click', start);
   };

@@ -4,7 +4,7 @@ import { call } from '../live.js';
 import { esc, failText } from './ui.js';
 import { mountVisual } from '../visuals.js';
 
-// the worker loads its speech model when a call arrives, so the first join can take ~10 s
+// the agent can take several seconds to join after the room opens
 const AGENT_GRACE_MS = 20000;
 
 export function mount(root, { lang, c, common, reduced, signal }) {
