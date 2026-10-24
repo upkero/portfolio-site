@@ -64,12 +64,14 @@ export function mount(root, { c, common, signal, setStatus }) {
       return;
     }
     const text = (s) => matches.find((m) => m.document_title === s.document_title && m.chunk_index === s.chunk_index)?.chunk_text;
+    // rerank scores are not similarities, so the bar shows rank against the best source, never a percentage
+    const top = Math.max(...sources.map((s) => s.score), Number.EPSILON);
     panel.replaceChildren(html(`<ol class="sources__list">${sources.map((s, i) => {
-      const pct = Math.round(Math.max(0, Math.min(1, s.score)) * 100);
+      const pct = Math.round(Math.max(0, Math.min(1, s.score / top)) * 100);
       const passage = text(s);
       return `
         <li class="source" style="--d:${i * 70}ms">
-          <div class="source__top"><span class="source__title">${esc(s.document_title)}</span><span class="source__score">${pct}%</span></div>
+          <div class="source__top"><span class="source__title">${esc(s.document_title)}</span></div>
           <div class="source__bar"><i style="width:${pct}%"></i></div>
           ${passage
             ? `<details${i === 0 ? ' open' : ''}><summary>${esc(c.chunk(s.chunk_index))}</summary><p>${esc(passage)}</p></details>`

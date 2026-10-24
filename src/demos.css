@@ -71,7 +71,7 @@
 .source { animation: demo-rise 0.6s var(--ease) both; animation-delay: var(--d); }
 .source__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .source__title { font-size: 15px; }
-.source__score, .source__chunk { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.source__chunk { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted); }
 .source__bar { height: 2px; background: var(--line); margin: 8px 0 10px; }
 .source__bar i { display: block; height: 100%; background: var(--fg); transform-origin: left; animation: demo-grow 1s var(--ease) both; animation-delay: var(--d); }
 .source summary { font-size: 13px; color: var(--dim); cursor: pointer; padding: 6px 0; }
