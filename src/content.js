@@ -169,15 +169,16 @@ export const steps = [
 ];
 
 export const stack = [
-  'Python', 'FastAPI', 'PostgreSQL', 'pgvector', 'LiveKit', 'WebRTC', 'OpenAI', 'Ollama',
-  'MCP', 'RAG', 'Whisper', 'Docker', 'SQLAlchemy', 'Pydantic', 'SSE', 'CI/CD',
+  'Python', 'FastAPI', 'PostgreSQL', 'pgvector', 'LiveKit', 'WebRTC', 'OpenAI', 'Claude',
+  'OpenRouter', 'Deepgram', 'MCP', 'RAG', 'Docker', 'SQLAlchemy', 'Pydantic', 'SSE', 'CI/CD',
+  'OpenTelemetry', 'Grafana',
 ];
 
 export const projects = [
   {
     id: 'voice',
     repo: REPO('voice-agent-service'),
-    tags: ['LiveKit', 'WebRTC', 'Whisper', 'Gemini TTS', 'Python'],
+    tags: ['LiveKit', 'Deepgram', 'Grok TTS', 'Claude Haiku'],
     ru: {
       title: 'Голосовой агент «Мила»',
       line: 'Принимает звонки и бронирует столики в ресторане голосом, в реальном времени.',
@@ -239,7 +240,7 @@ export const projects = [
   {
     id: 'rag',
     repo: REPO('rag-chat-service'),
-    tags: ['RAG', 'pgvector', 'FastAPI', 'OpenAI / Ollama'],
+    tags: ['RAG', 'pgvector', 'Cohere rerank', 'FastAPI'],
     ru: {
       title: 'Чат по базе знаний',
       line: 'Отвечает на вопросы клиентов строго по документам компании и честно говорит, когда не уверен.',
@@ -249,7 +250,7 @@ export const projects = [
         'Семантический поиск по базе знаний на pgvector',
         'Порог уверенности: при слабом совпадении модель даже не вызывается. Это дешевле и исключает выдумки',
         'Каждый ответ ссылается на источники',
-        'Работает с OpenAI или с локальной моделью через Ollama',
+        'Подойдёт любая модель с OpenAI-совместимым API. В демо работает gpt-4o-mini с реранкером Cohere',
       ],
       business: 'Поддержка отвечает мгновенно и по регламенту, а сложные вопросы уходят живому сотруднику.',
     },
@@ -262,7 +263,7 @@ export const projects = [
         'Semantic search over the knowledge base with pgvector',
         'A confidence gate: on a weak match the model is never called, which is cheaper and rules out made-up answers',
         'Every answer cites its sources',
-        'Runs on OpenAI or a local model via Ollama',
+        'Works with any OpenAI-compatible model. The demo runs gpt-4o-mini with a Cohere reranker',
       ],
       business: 'Support answers instantly and by the book, while hard questions go to a human.',
     },
